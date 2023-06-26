@@ -11,8 +11,8 @@ public interface GameSessionMapper {
     GameSessionMapper INSTANCE = Mappers.getMapper(GameSessionMapper.class);
 
     @Mapping(source = "gameRoom.id", target = "gameRoomId")
-    GameSessionDTO gameSessionToGameSessionDTO(GameSession gameSession);
+    GameSessionDTO toDTO(GameSession gameSession);
 
-    @Mapping(source = "gameRoomId", target = "gameRoom.id")
-    GameSession gameSessionDTOToGameSession(GameSessionDTO gameSessionDTO);
+    @Mapping(target = "gameRoom", ignore = true)
+    GameSession DTO2GameSession(GameSessionDTO gameSessionDTO);
 }

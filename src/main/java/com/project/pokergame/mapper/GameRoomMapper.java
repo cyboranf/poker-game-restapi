@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
 public interface GameRoomMapper {
     GameRoomMapper INSTANCE = Mappers.getMapper(GameRoomMapper.class);
 
-    GameRoomDTO gameRoomToGameRoomDTO(GameRoom gameRoom);
+    GameRoomDTO toDTO(GameRoom gameRoom);
 
-    GameRoom gameRoomDTOToGameRoom(GameRoomDTO gameRoomDTO);
+    GameRoom DTO2GameRoom(GameRoomDTO gameRoomDTO);
 }

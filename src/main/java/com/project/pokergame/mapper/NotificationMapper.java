@@ -11,8 +11,8 @@ public interface NotificationMapper {
     NotificationMapper INSTANCE = Mappers.getMapper(NotificationMapper.class);
 
     @Mapping(source = "userAccount.id", target = "userAccountId")
-    NotificationDTO notificationToNotificationDTO(Notification notification);
+    NotificationDTO toDTO(Notification notification);
 
-    @Mapping(source = "userAccountId", target = "userAccount.id")
-    Notification notificationDTOToNotification(NotificationDTO notificationDTO);
+    @Mapping(target = "userAccount", ignore = true)
+    Notification DTO2Notification(NotificationDTO notificationDTO);
 }

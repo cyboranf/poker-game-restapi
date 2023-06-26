@@ -4,15 +4,14 @@ import com.project.pokergame.dto.UserProfileDTO;
 import com.project.pokergame.model.UserProfile;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+
+@Mapper(componentModel = "spring")
 public interface UserProfileMapper {
-    UserProfileMapper INSTANCE = Mappers.getMapper(UserProfileMapper.class);
 
     @Mapping(source = "userAccount.id", target = "userAccountId")
-    UserProfileDTO userProfileToUserProfileDTO(UserProfile userProfile);
+    UserProfileDTO toDTO(UserProfile userProfile);
 
-    @Mapping(source = "userAccountId", target = "userAccount", ignore = true)
-    UserProfile userProfileDTOToUserProfile(UserProfileDTO userProfileDTO);
+    @Mapping(source = "userAccountId", target = "userAccount.id")
+    UserProfile DTO2UserProfile(UserProfileDTO userProfileDTO);
 }

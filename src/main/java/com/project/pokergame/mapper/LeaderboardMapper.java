@@ -11,8 +11,8 @@ public interface LeaderboardMapper {
     LeaderboardMapper INSTANCE = Mappers.getMapper(LeaderboardMapper.class);
 
     @Mapping(source = "userAccount.id", target = "userAccountId")
-    LeaderboardDTO leaderboardToLeaderboardDTO(Leaderboard leaderboard);
+    LeaderboardDTO toDTO(Leaderboard leaderboard);
 
-    @Mapping(source = "userAccountId", target = "userAccount.id")
-    Leaderboard leaderboardDTOToLeaderboard(LeaderboardDTO leaderboardDTO);
+    @Mapping(target = "userAccount", ignore = true)
+    Leaderboard DTO2Leaderboard(LeaderboardDTO leaderboardDTO);
 }

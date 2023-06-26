@@ -12,9 +12,11 @@ public interface ChatMessageMapper {
 
     @Mapping(source = "gameSession.id", target = "gameSessionId")
     @Mapping(source = "userAccount.id", target = "userAccountId")
-    ChatMessageDTO chatMessageToChatMessageDTO(ChatMessage chatMessage);
+    ChatMessageDTO toDTO(ChatMessage chatMessage);
 
-    @Mapping(target = "gameSession", ignore = true)
-    @Mapping(target = "userAccount", ignore = true)
-    ChatMessage chatMessageDTOToChatMessage(ChatMessageDTO chatMessageDTO);
+    @Mapping(target = "gameSession", expression = "java(new com.project.pokergame.model.GameSession())")
+    @Mapping(target = "gameSession.id", source = "gameSessionId")
+    @Mapping(target = "userAccount", expression = "java(new com.project.pokergame.model.UserAccount())")
+    @Mapping(target = "userAccount.id", source = "userAccountId")
+    ChatMessage DTO2ChatMessage(ChatMessageDTO chatMessageDTO);
 }
