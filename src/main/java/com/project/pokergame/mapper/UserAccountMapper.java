@@ -3,31 +3,41 @@ package com.project.pokergame.mapper;
 import com.project.pokergame.dto.UserAccountDTO;
 import com.project.pokergame.model.Role;
 import com.project.pokergame.model.UserAccount;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
-
+import org.mapstruct.MappingTarget;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-@Mapper
-public interface UserAccountMapper {
-    UserAccountMapper INSTANCE = Mappers.getMapper(UserAccountMapper.class);
 
-    @Mapping(source = "roles", target = "roleIds", qualifiedByName = "mapRolesToRoleIds")
-    UserAccountDTO userAccountToUserAccountDTO(UserAccount userAccount);
+@Mapper(componentModel = "spring")
+public abstract class UserAccountMapper {
 
-    @Mapping(source = "roleIds", target = "roles", ignore = true)
-    UserAccount userAccountDTOToUserAccount(UserAccountDTO userAccountDTO);
+    public abstract UserAccountDTO toDTO(UserAccount userAccount);
 
-    @Named("mapRolesToRoleIds")
-    default Set<Integer> mapRolesToRoleIds(Set<Role> roles) {
-        if (roles == null) {
-            return null;
+    public abstract UserAccount DTO2UserAccount(UserAccountDTO userAccountDTO);
+
+    @AfterMapping
+    protected void mapRolesToRoleIds(UserAccount userAccount, @MappingTarget UserAccountDTO userAccountDTO) {
+        if (userAccount.getRoles() != null) {
+            Set<Long> roleIds = new HashSet<>();
+            for (Role role : userAccount.getRoles()) {
+                roleIds.add((long) role.getId());
+            }
+            userAccountDTO.setRoleIds(roleIds);
         }
-        return roles.stream()
-                .map(Role::getId)
-                .collect(Collectors.toSet());
+    }
+
+    @AfterMapping
+    protected void mapRoleIdsToRoles(UserAccountDTO userAccountDTO, @MappingTarget UserAccount userAccount) {
+        if (userAccountDTO.getRoleIds() != null) {
+            Set<Role> roles = new HashSet<>();
+            for (Long roleId : userAccountDTO.getRoleIds()) {
+                Role role = new Role();
+                role.setId(roleId.intValue());
+                roles.add(role);
+            }
+            userAccount.setRoles(roles);
+        }
     }
 }

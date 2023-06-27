@@ -1,16 +1,16 @@
 package com.project.pokergame.model;
 
 import com.project.pokergame.model.enumerated.AccountStatus;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "user_account")
 @Data
-@NoArgsConstructor
 public class UserAccount {
 
     @Id
@@ -35,4 +35,16 @@ public class UserAccount {
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles;
+
+    public UserAccount() {
+        roles = new HashSet<>();
+    }
 }
