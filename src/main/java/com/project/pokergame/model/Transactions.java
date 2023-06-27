@@ -4,7 +4,7 @@ import com.project.pokergame.model.enumerated.TransactionType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

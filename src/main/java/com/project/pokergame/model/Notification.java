@@ -4,7 +4,7 @@ import com.project.pokergame.model.enumerated.NotificationStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

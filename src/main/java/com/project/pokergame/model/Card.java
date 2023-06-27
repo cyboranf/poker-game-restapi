@@ -5,7 +5,7 @@ import com.project.pokergame.model.enumerated.Suit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "cards")
