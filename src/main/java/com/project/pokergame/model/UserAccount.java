@@ -3,6 +3,7 @@ package com.project.pokergame.model;
 import com.project.pokergame.model.enumerated.AccountStatus;
 import javax.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -30,7 +31,8 @@ public class UserAccount {
     @Column(nullable = false)
     private AccountStatus accountStatus;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "last_login_at")
