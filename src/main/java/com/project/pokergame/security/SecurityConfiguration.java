@@ -32,7 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 .authorizeRequests()
                 //login and register controller
-                .antMatchers("/api/register", "/api/login").permitAll()
+                .antMatchers("/api/register", "/api/login", "/api/logout").permitAll()
 
 
                 .anyRequest().hasRole("ADMIN")

@@ -1,11 +1,10 @@
 package com.project.pokergame.security;
 
 import com.project.pokergame.service.UserDetailsServiceImpl;
+import com.project.pokergame.service.logout.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -20,9 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
-import java.security.SignatureException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,10 +35,12 @@ public class JwtTokenProvider {
     private SecretKey jwtSecret;
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Autowired
-    public JwtTokenProvider(@Lazy UserDetailsServiceImpl userDetailsService) {
+    public JwtTokenProvider(@Lazy UserDetailsServiceImpl userDetailsService, TokenBlacklistService tokenBlacklistService) {
         this.userDetailsService = userDetailsService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     public String generateToken(Authentication authentication) {
@@ -84,10 +83,9 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token);
-            return true;
-        } catch (UnsupportedJwtException | IllegalArgumentException |
-                 ExpiredJwtException e) {
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+            return !tokenBlacklistService.isTokenBlacklisted(token);
+        } catch (Exception e) {
             return false;
         }
     }
