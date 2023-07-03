@@ -1,7 +1,7 @@
 package com.project.pokergame.controller;
 
 import com.project.pokergame.dto.UserAccountDTO;
-import com.project.pokergame.dto.UserRegisterDTO;
+import com.project.pokergame.dto.register.UserImportantDTO;
 import com.project.pokergame.service.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +19,7 @@ public class RegisterController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserAccountDTO> register(@RequestBody UserRegisterDTO userRegisterDTO) {
-        return ResponseEntity.ok(userAccountService.registerUser(userRegisterDTO));
+    public ResponseEntity<UserAccountDTO> register(@RequestBody UserImportantDTO userImportantDTO) {
+        return ResponseEntity.ok(userAccountService.registerUser(userImportantDTO));
     }
 }
