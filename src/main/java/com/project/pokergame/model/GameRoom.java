@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "game_room")
@@ -33,4 +34,11 @@ public class GameRoom {
 
     @Enumerated(EnumType.STRING)
     private RoomStatus status;
+    @ManyToOne
+    @JoinColumn(name = "creator_id", referencedColumnName = "id")
+    private UserProfile creator;
+
+    @OneToMany(mappedBy = "gameRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserProfile> players;
+
 }

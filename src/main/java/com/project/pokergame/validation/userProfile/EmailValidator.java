@@ -1,4 +1,4 @@
-package com.project.pokergame.validation;
+package com.project.pokergame.validation.userProfile;
 
 import java.util.regex.Pattern;
 

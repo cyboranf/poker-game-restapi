@@ -34,4 +34,8 @@ public class UserProfile {
 
     @Column(name = "total_winnings")
     private Double totalWinnings;
+
+    @ManyToOne
+    @JoinColumn(name = "game_room_id", referencedColumnName = "id")
+    private GameRoom gameRoom;
 }

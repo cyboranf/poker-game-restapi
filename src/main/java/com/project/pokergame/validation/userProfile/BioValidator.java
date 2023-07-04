@@ -1,4 +1,4 @@
-package com.project.pokergame.validation;
+package com.project.pokergame.validation.userProfile;
 
 public class BioValidator {
     public static void validate(String bio) {
