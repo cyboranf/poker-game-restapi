@@ -2,13 +2,14 @@ package com.project.pokergame.seeder;
 
 import com.project.pokergame.model.enumerated.Role;
 import com.project.pokergame.service.RoleService;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(1)
 @Profile("seed")
-public class RoleSeeder implements CommandLineRunner {
+public class RoleSeeder implements DatabaseSeeder {
     private final RoleService roleService;
 
     public RoleSeeder(RoleService roleService) {
@@ -20,6 +21,13 @@ public class RoleSeeder implements CommandLineRunner {
      * @param args incoming main method arguments
      * @throws Exception
      */
+
+    /**
+     * Role:
+     *   "1": "USER",
+     *   "2": "MOD",
+     *   "3": "ADMIN"
+     */
     @Override
     public void run(String... args) throws Exception {
         for (Role role : Role.values()) {
@@ -28,10 +36,4 @@ public class RoleSeeder implements CommandLineRunner {
             roleService.saveRole(roleEntity);
         }
     }
-    /**
-     * Role:
-     *   "1": "USER",
-     *   "2": "MOD",
-     *   "3": "ADMIN"
-     */
 }
