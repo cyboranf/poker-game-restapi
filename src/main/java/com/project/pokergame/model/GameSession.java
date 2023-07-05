@@ -28,4 +28,6 @@ public class GameSession {
 
     @Column(name = "pot_size")
     private Double potSize;
+    @Column(name = "last_call")
+    private Double lastCall;
 }

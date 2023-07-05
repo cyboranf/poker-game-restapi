@@ -11,5 +11,5 @@ public class GameSessionDTO {
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private Double potSize;
-
+    private Double lastCall;
 }
