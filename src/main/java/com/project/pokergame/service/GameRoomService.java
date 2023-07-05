@@ -1,9 +1,9 @@
 package com.project.pokergame.service;
 
 import com.project.pokergame.dto.GameRoomDTO;
-import com.project.pokergame.exception.RoomClosedException;
-import com.project.pokergame.exception.RoomFullException;
-import com.project.pokergame.exception.UserAlreadyInRoomException;
+import com.project.pokergame.exception.gameRoom.RoomClosedException;
+import com.project.pokergame.exception.gameRoom.RoomFullException;
+import com.project.pokergame.exception.gameRoom.UserAlreadyInRoomException;
 import com.project.pokergame.mapper.GameRoomMapper;
 import com.project.pokergame.model.GameRoom;
 import com.project.pokergame.model.UserProfile;
