@@ -12,9 +12,9 @@ import com.project.pokergame.repository.UserAccountRepository;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
-import com.project.pokergame.validation.EmailValidator;
-import com.project.pokergame.validation.PasswordValidator;
-import com.project.pokergame.validation.UsernameValidator;
+import com.project.pokergame.validation.userProfile.EmailValidator;
+import com.project.pokergame.validation.userAccount.PasswordValidator;
+import com.project.pokergame.validation.userAccount.UsernameValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

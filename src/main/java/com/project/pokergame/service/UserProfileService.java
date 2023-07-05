@@ -10,10 +10,10 @@ import com.project.pokergame.repository.UserProfileRepository;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
-import com.project.pokergame.validation.AvatarValidator;
-import com.project.pokergame.validation.BioValidator;
-import com.project.pokergame.validation.CountryValidator;
-import com.project.pokergame.validation.NameValidator;
+import com.project.pokergame.validation.userProfile.AvatarValidator;
+import com.project.pokergame.validation.userProfile.BioValidator;
+import com.project.pokergame.validation.userProfile.CountryValidator;
+import com.project.pokergame.validation.userProfile.NameValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
