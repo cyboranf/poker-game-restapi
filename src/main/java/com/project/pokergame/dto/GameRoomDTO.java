@@ -12,6 +12,6 @@ public class GameRoomDTO {
     private Integer maxPlayers;
     private Double smallBlind;
     private Double bigBlind;
-    private LocalDateTime createdAt;
     private RoomStatus status;
+
 }

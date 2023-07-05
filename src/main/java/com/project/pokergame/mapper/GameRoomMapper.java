@@ -5,7 +5,7 @@ import com.project.pokergame.model.GameRoom;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface GameRoomMapper {
     GameRoomMapper INSTANCE = Mappers.getMapper(GameRoomMapper.class);
 
