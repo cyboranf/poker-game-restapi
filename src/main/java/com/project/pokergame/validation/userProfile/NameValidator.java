@@ -1,7 +1,9 @@
 package com.project.pokergame.validation.userProfile;
 
-import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
+import java.util.regex.Pattern;
+@Component
 public class NameValidator {
     /**
      *     Name pattern explained:
@@ -9,7 +11,7 @@ public class NameValidator {
      */
     private static final Pattern NAME_PATTERN = Pattern.compile("^[a-zA-Z]{2,50}$");
 
-    public static void validate(String name) {
+    public void validate(String name) {
         if (name == null || !NAME_PATTERN.matcher(name).matches()){
             throw new IllegalArgumentException("Name must be 2 to 50 character long and only contains alphabet.");
         }

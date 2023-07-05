@@ -13,4 +13,8 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     private com.project.pokergame.model.enumerated.Role name;
+
+    public String getName() {
+        return name.name();
+    }
 }

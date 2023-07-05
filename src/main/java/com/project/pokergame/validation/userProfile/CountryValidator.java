@@ -1,9 +1,11 @@
 package com.project.pokergame.validation.userProfile;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
+@Component
 public class CountryValidator {
     private static final Set<String> COUNTRIES = new HashSet<>(Arrays.asList(
             "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia",
@@ -30,7 +32,7 @@ public class CountryValidator {
             "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
     ));
 
-    public static void validate(String country) {
+    public void validate(String country) {
         if (country == null || !COUNTRIES.contains(country)){
             throw new IllegalArgumentException("Invalid country.");
         }

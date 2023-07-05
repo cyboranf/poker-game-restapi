@@ -8,13 +8,9 @@ import com.project.pokergame.model.UserAccount;
 import com.project.pokergame.model.enumerated.AccountStatus;
 import com.project.pokergame.repository.RoleRepository;
 import com.project.pokergame.repository.UserAccountRepository;
-
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-
-import com.project.pokergame.validation.userProfile.EmailValidator;
-import com.project.pokergame.validation.userAccount.PasswordValidator;
-import com.project.pokergame.validation.userAccount.UsernameValidator;
+import com.project.pokergame.validation.userAccount.UserAccountValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +23,14 @@ public class UserAccountService {
     private final UserAccountMapper userAccountMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final UserAccountValidator userAccountValidator;
 
-    public UserAccountService(UserAccountRepository userAccountRepository, UserAccountMapper userAccountMapper, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+    public UserAccountService(UserAccountRepository userAccountRepository, UserAccountMapper userAccountMapper, PasswordEncoder passwordEncoder, RoleRepository roleRepository, UserAccountValidator userAccountValidator) {
         this.userAccountRepository = userAccountRepository;
         this.userAccountMapper = userAccountMapper;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.userAccountValidator = userAccountValidator;
     }
 
     public Optional<UserAccount> findByEmail(String email) {
@@ -45,9 +43,7 @@ public class UserAccountService {
      * methods for register an accounts:
      */
     private UserAccount createUserAccount(UserImportantDTO userImportantDTO) {
-        EmailValidator.validate(userImportantDTO.getEmail());
-        UsernameValidator.validate(userImportantDTO.getUsername());
-        PasswordValidator.validate(userImportantDTO.getPassword());
+        userAccountValidator.validate(userImportantDTO);
 
         if (userAccountRepository.existsByEmail(userImportantDTO.getEmail())) {
             throw new IllegalArgumentException("Email is already in use.");
@@ -94,8 +90,7 @@ public class UserAccountService {
 
     // Methods for all users:
     public UserAccount updateUserData(Long id, UserImportantDTO userAccountDTO) {
-        EmailValidator.validate(userAccountDTO.getEmail());
-        UsernameValidator.validate(userAccountDTO.getUsername());
+        userAccountValidator.validateEmailAndUsername(userAccountDTO.getEmail(), userAccountDTO.getUsername());
 
         return userAccountRepository.findById(id).map(userAccount -> {
             userAccount.setUsername(userAccountDTO.getUsername());
@@ -105,13 +100,12 @@ public class UserAccountService {
         }).orElseThrow(() -> new EntityNotFoundException("User not found with id = " + id));
     }
 
-    public UserAccount updateUserPassword(Long id , UserImportantDTO changedData){
-        PasswordValidator.validate(changedData.getPassword());
+    public UserAccount updateUserPassword(Long id, UserImportantDTO changedData) {
+        userAccountValidator.validatePassword(changedData.getPassword());
 
         return userAccountRepository.findById(id).map(userAccount -> {
             userAccount.setPassword(passwordEncoder.encode(changedData.getPassword()));
-
             return userAccountRepository.save(userAccount);
-        }).orElseThrow(()-> new EntityNotFoundException("User not found with id = "+ id));
+        }).orElseThrow(() -> new EntityNotFoundException("User not found with id = " + id));
     }
 }

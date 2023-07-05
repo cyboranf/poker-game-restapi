@@ -2,8 +2,6 @@ package com.project.pokergame.service;
 
 import com.project.pokergame.dto.GameRoomDTO;
 import com.project.pokergame.exception.gameRoom.RoomClosedException;
-import com.project.pokergame.exception.gameRoom.RoomFullException;
-import com.project.pokergame.exception.gameRoom.UserAlreadyInRoomException;
 import com.project.pokergame.mapper.GameRoomMapper;
 import com.project.pokergame.model.GameRoom;
 import com.project.pokergame.model.UserProfile;
@@ -11,10 +9,7 @@ import com.project.pokergame.model.enumerated.Role;
 import com.project.pokergame.model.enumerated.RoomStatus;
 import com.project.pokergame.repository.GameRoomRepository;
 import com.project.pokergame.repository.UserProfileRepository;
-import com.project.pokergame.validation.gameRoom.BigBlindValidator;
-import com.project.pokergame.validation.gameRoom.RoomMaxPlayersValidator;
-import com.project.pokergame.validation.gameRoom.RoomNameValidator;
-import com.project.pokergame.validation.gameRoom.SmallBlindValidator;
+import com.project.pokergame.validation.gameRoom.*;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -30,11 +25,15 @@ public class GameRoomService {
     private final GameRoomRepository gameRoomRepository;
     private final UserProfileRepository userProfileRepository;
     private final GameRoomMapper gameRoomMapper;
+    private final GameRoomValidator gameRoomValidator;
+    private final PlayerJoinValidator playerJoinValidator;
 
-    public GameRoomService(GameRoomRepository gameRoomRepository, UserProfileRepository userProfileRepository, GameRoomMapper roomMapper) {
+    public GameRoomService(GameRoomRepository gameRoomRepository, UserProfileRepository userProfileRepository, GameRoomMapper roomMapper, GameRoomValidator gameRoomValidator, PlayerJoinValidator playerJoinValidator) {
         this.gameRoomRepository = gameRoomRepository;
         this.userProfileRepository = userProfileRepository;
         this.gameRoomMapper = roomMapper;
+        this.gameRoomValidator = gameRoomValidator;
+        this.playerJoinValidator = playerJoinValidator;
     }
 
     /**
@@ -42,10 +41,7 @@ public class GameRoomService {
      * Create Game Room
      */
     public GameRoomDTO createGameRoom(GameRoomDTO gameRoomDTO, Long userId) {
-        RoomNameValidator.validate(gameRoomDTO.getName());
-        RoomMaxPlayersValidator.validate(gameRoomDTO.getMaxPlayers());
-        SmallBlindValidator.validate(gameRoomDTO.getSmallBlind());
-        BigBlindValidator.validate(gameRoomDTO.getBigBlind(), gameRoomDTO.getSmallBlind());
+        gameRoomValidator.validate(gameRoomDTO);
 
         GameRoom gameRoom = new GameRoom();
         gameRoom.setName(gameRoomDTO.getName());
@@ -66,18 +62,11 @@ public class GameRoomService {
      * Join to a Game Room
      */
     public GameRoomDTO joinGameRoom(Long userId, Long roomId) {
-        GameRoom roomToJoin = gameRoomRepository.findById(roomId).orElseThrow(() -> new EntityNotFoundException("Can not found room with id = " + roomId));
+        GameRoom roomToJoin = gameRoomRepository.findById(roomId).orElseThrow(() -> new EntityNotFoundException("Cannot find room with id = " + roomId));
+
         UserProfile joiner = userProfileRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id = " + userId));
-        if (roomToJoin.getStatus().equals(RoomStatus.CLOSED)) {
-            throw new RoomClosedException("Cannot join a closed room.");
-        }
-        if (roomToJoin.getPlayers().size() >= roomToJoin.getMaxPlayers()) {
-            throw new RoomFullException("The room has reached its maximum capacity.");
-        }
-        boolean userAlreadyInRoom = roomToJoin.getPlayers().stream().anyMatch(player -> player.getId().equals(joiner.getId()));
-        if (userAlreadyInRoom) {
-            throw new UserAlreadyInRoomException("User is already in the game room.");
-        }
+
+        playerJoinValidator.validate(roomToJoin, joiner);
 
         List<UserProfile> players = roomToJoin.getPlayers();
         players.add(joiner);
@@ -95,8 +84,7 @@ public class GameRoomService {
         GameRoom roomToClose = gameRoomRepository.findById(roomId).orElseThrow(() -> new EntityNotFoundException("Can not found room with id = " + roomId));
         UserProfile closer = userProfileRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Can not found user with id = " + userId));
 
-        boolean isCloserAdminOrMod = closer.getUserAccount().getRoles().stream()
-                .anyMatch(role -> role.getName().equals(Role.ADMIN) || role.getName().equals(Role.MOD));
+        boolean isCloserAdminOrMod = closer.getUserAccount().getRoles().stream().anyMatch(role -> role.getName().equals(Role.ADMIN) || role.getName().equals(Role.MOD));
         boolean isCloserTheCreator = roomToClose.getCreator().getId().equals(closer.getId());
 
         if (!isCloserAdminOrMod && !isCloserTheCreator) {
@@ -113,10 +101,7 @@ public class GameRoomService {
      */
     public List<GameRoomDTO> getActiveGameRooms() {
         List<GameRoom> allRooms = gameRoomRepository.findAll();
-        return allRooms.stream()
-                .filter(r -> r.getStatus().equals(RoomStatus.ACTIVE))
-                .map(gameRoomMapper::toDTO)
-                .collect(Collectors.toList());
+        return allRooms.stream().filter(r -> r.getStatus().equals(RoomStatus.ACTIVE)).map(gameRoomMapper::toDTO).collect(Collectors.toList());
     }
 
     /**
@@ -126,11 +111,7 @@ public class GameRoomService {
      */
     public List<GameRoomDTO> getActiveRoomsSortedByFreePlaces() {
         List<GameRoom> allRooms = gameRoomRepository.findAll();
-        return allRooms.stream()
-                .filter(r -> r.getStatus().equals(RoomStatus.ACTIVE))
-                .sorted(Comparator.comparing(r -> r.getMaxPlayers() - r.getPlayers().size()))
-                .map(gameRoomMapper::toDTO)
-                .collect(Collectors.toList());
+        return allRooms.stream().filter(r -> r.getStatus().equals(RoomStatus.ACTIVE)).sorted(Comparator.comparing(r -> r.getMaxPlayers() - r.getPlayers().size())).map(gameRoomMapper::toDTO).collect(Collectors.toList());
     }
 
     /**
@@ -138,8 +119,7 @@ public class GameRoomService {
      * Get a Game Room by roomId
      */
     public GameRoomDTO getGameRoomById(Long roomId) {
-        GameRoom searchingRoom = gameRoomRepository.findById(roomId)
-                .orElseThrow(() -> new EntityNotFoundException("Can not found Game room with id = " + roomId));
+        GameRoom searchingRoom = gameRoomRepository.findById(roomId).orElseThrow(() -> new EntityNotFoundException("Can not found Game room with id = " + roomId));
         return gameRoomMapper.toDTO(searchingRoom);
     }
 }

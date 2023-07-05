@@ -6,16 +6,10 @@ import com.project.pokergame.model.UserAccount;
 import com.project.pokergame.model.UserProfile;
 import com.project.pokergame.repository.UserAccountRepository;
 import com.project.pokergame.repository.UserProfileRepository;
-
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-
-import com.project.pokergame.validation.userProfile.AvatarValidator;
-import com.project.pokergame.validation.userProfile.BioValidator;
-import com.project.pokergame.validation.userProfile.CountryValidator;
-import com.project.pokergame.validation.userProfile.NameValidator;
+import com.project.pokergame.validation.userProfile.*;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,25 +19,23 @@ public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserAccountRepository userAccountRepository;
     private final UserProfileMapper userProfileMapper;
+    private final UserProfileValidator userProfileValidator;
 
-    public UserProfileService(UserProfileRepository userProfileRepository, UserAccountRepository userAccountRepository, UserProfileMapper userProfileMapper) {
+    public UserProfileService(UserProfileRepository userProfileRepository, UserAccountRepository userAccountRepository, UserProfileMapper userProfileMapper, UserProfileValidator userProfileValidator) {
         this.userProfileRepository = userProfileRepository;
         this.userAccountRepository = userAccountRepository;
         this.userProfileMapper = userProfileMapper;
+        this.userProfileValidator = userProfileValidator;
     }
 
     /**
      * Method to add more info about player(user)
      */
     public UserProfileDTO addUserProfile(Long userAccountId, UserProfileDTO userProfileDTO) {
-        NameValidator.validate(userProfileDTO.getFirstName());
-        NameValidator.validate(userProfileDTO.getLastName());
-        AvatarValidator.validate(userProfileDTO.getAvatar());
-        CountryValidator.validate(userProfileDTO.getCountry());
-        BioValidator.validate(userProfileDTO.getBio());
+        userProfileValidator.validate(userProfileMapper.DTO2UserProfile(userProfileDTO));
 
-        UserAccount userAccount = userAccountRepository.findById(userAccountId)
-                .orElseThrow(() -> new IllegalArgumentException("UserAccount not found with id = " + userAccountId));
+
+        UserAccount userAccount = userAccountRepository.findById(userAccountId).orElseThrow(() -> new IllegalArgumentException("UserAccount not found with id = " + userAccountId));
 
         UserProfile userProfile = userProfileMapper.DTO2UserProfile(userProfileDTO);
 
@@ -59,14 +51,9 @@ public class UserProfileService {
      * Method to edit user profile
      */
     public UserProfileDTO updateUserProfile(Long userId, UserProfileDTO userProfileDTO) {
-        NameValidator.validate(userProfileDTO.getFirstName());
-        NameValidator.validate(userProfileDTO.getLastName());
-        AvatarValidator.validate(userProfileDTO.getAvatar());
-        CountryValidator.validate(userProfileDTO.getCountry());
-        BioValidator.validate(userProfileDTO.getBio());
+        userProfileValidator.validate(userProfileMapper.DTO2UserProfile(userProfileDTO));
 
-        UserProfile editedUser = userProfileRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User profile not found with id = " + userId));
+        UserProfile editedUser = userProfileRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User profile not found with id = " + userId));
 
         editedUser.setFirstName(userProfileDTO.getFirstName());
         editedUser.setLastName(userProfileDTO.getLastName());
@@ -83,8 +70,7 @@ public class UserProfileService {
      * Methods to get user profile / users profiles
      */
     public UserProfileDTO getUserProfile(Long userID) {
-        UserProfile user = userProfileRepository.findById(userID)
-                .orElseThrow(() -> new EntityNotFoundException("User profile not found with id = " + userID));
+        UserProfile user = userProfileRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("User profile not found with id = " + userID));
 
         return userProfileMapper.toDTO(user);
     }
@@ -94,8 +80,7 @@ public class UserProfileService {
 
         allUsers.sort((user1, user2) -> user2.getTotalWinnings().compareTo(user1.getTotalWinnings()));
 
-        return allUsers.stream().map(userProfileMapper::toDTO)
-                .collect(Collectors.toList());
+        return allUsers.stream().map(userProfileMapper::toDTO).collect(Collectors.toList());
     }
 
     public List<UserProfileDTO> viewUsersProfileByTotalGamesPlayed() {
@@ -103,7 +88,6 @@ public class UserProfileService {
 
         allUsers.sort((user1, user2) -> user2.getTotalGamesPlayed().compareTo(user1.getTotalGamesPlayed()));
 
-        return allUsers.stream().map(userProfileMapper::toDTO)
-                .collect(Collectors.toList());
+        return allUsers.stream().map(userProfileMapper::toDTO).collect(Collectors.toList());
     }
 }
