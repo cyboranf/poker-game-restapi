@@ -5,7 +5,6 @@ import com.project.pokergame.mapper.PlayerSessionMapper;
 import com.project.pokergame.model.GameSession;
 import com.project.pokergame.model.PlayerSession;
 import com.project.pokergame.model.UserAccount;
-import com.project.pokergame.model.UserProfile;
 import com.project.pokergame.repository.GameSessionRepository;
 import com.project.pokergame.repository.PlayerSessionRepository;
 
@@ -13,9 +12,11 @@ import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import com.project.pokergame.repository.UserProfileRepository;
+import com.project.pokergame.validation.playerSession.PlayerSessionValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,18 +28,20 @@ public class PlayerSessionService {
     private final UserProfileRepository userProfileRepository;
     private final GameSessionRepository gameSessionRepository;
     private final PlayerSessionMapper playerSessionMapper;
+    private final PlayerSessionValidator playerSessionValidator;
 
-    public PlayerSessionService(PlayerSessionRepository playerSessionRepository, UserProfileRepository userProfileRepository, GameSessionRepository gameSessionRepository, PlayerSessionMapper playerSessionMapper) {
+    public PlayerSessionService(PlayerSessionRepository playerSessionRepository, UserProfileRepository userProfileRepository, GameSessionRepository gameSessionRepository, PlayerSessionMapper playerSessionMapper, PlayerSessionValidator playerSessionValidator) {
         this.playerSessionRepository = playerSessionRepository;
         this.userProfileRepository = userProfileRepository;
         this.gameSessionRepository = gameSessionRepository;
         this.playerSessionMapper = playerSessionMapper;
+        this.playerSessionValidator = playerSessionValidator;
     }
 
     /**
-     * Method to create PlayerSession
+     * Method to join Player to Session
      */
-    public PlayerSessionDTO createPlayerSession(Long userId, Long gameId, Double stackSize) {
+    public PlayerSessionDTO joinPlayerSession(Long userId, Long gameId, Double stackSize) {
         PlayerSession createdPlayerSession = new PlayerSession();
         UserAccount joiner = userProfileRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Can not found user with id = " + userId))
@@ -74,15 +77,26 @@ public class PlayerSessionService {
     }
 
     /**
-     * Method to join Player to Session
+     * Method to select a Dealer to Session
      */
-//    public PlayerSession joinPlayerToSession(Long userId, Long sessionId) {
-//        PlayerSession session = playerSessionRepository.findById(sessionId)
-//                .orElseThrow(() -> new EntityNotFoundException("Can not found session with id = " + sessionId));
-//
-//        UserProfile user = userProfileRepository.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User not found with id = " + userId));
-//
-//
-//    }
+    public PlayerSessionDTO selectDealer(Long sessionId) {
+        GameSession gameSession = gameSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find game session with id = " + sessionId));
+
+        playerSessionValidator.validateSelectDealer(gameSession);
+
+        List<PlayerSession> playerSessions = playerSessionRepository.findByGameSession(gameSession);
+
+        Random random = new Random();
+        int dealerIndex = random.nextInt(playerSessions.size());
+        PlayerSession dealerSession = playerSessions.get(dealerIndex);
+
+        dealerSession.setIsDealer(true);
+        PlayerSession savedPlayerSession = playerSessionRepository.save(dealerSession);
+
+        return playerSessionMapper.toDTO(savedPlayerSession);
+    }
+
+    //TODO: Create a dealer for a whole game
+
 }
